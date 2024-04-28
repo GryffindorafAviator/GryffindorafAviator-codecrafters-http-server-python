@@ -12,8 +12,16 @@ def main():
     print(f"Connection from {client_address}")
 
     request_data = client_socket.recv(1024).decode()
-    random_string = extract_random_string(request_data)
-    http_response = prepare_response(random_string)
+    lines = request_data.split('\r\n')
+    method, path, http_version = lines[0].split()
+
+    if path == '/':
+        http_response = "HTTP/1.1 200 OK\r\n\r\n"
+    elif path is not None and path.find("/echo") == 0:
+        random_string = extract_random_string(request_data)
+        http_response = prepare_response(random_string)
+    else:
+        http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
 
     client_socket.sendall(http_response.encode())
     client_socket.close()
@@ -28,10 +36,20 @@ def extract_random_string(request_data):
 
 
 def prepare_response(random_string):
-    response_body = random_string
-    content_type = "Content-Type: text/plain\r\n"
-    content_length = f"Content-Length: {len(response_body)}\r\n"
-    http_response = f"HTTP/1.1 200 OK\r\n{content_type}{content_length}\r\n{response_body}"
+    if random_string:
+        # Generate the response body
+        response_body = random_string
+
+        # Set the Content-Type and Content-Length headers
+        content_type = "Content-Type: text/plain\r\n"
+        content_length = f"Content-Length: {len(response_body)}\r\n"
+
+        # Construct the complete HTTP response
+        http_response = f"HTTP/1.1 200 OK\r\n{content_type}{content_length}\r\n{response_body}"
+    else:
+        # If random string is not found, respond with 404 Not Found
+        http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
+
     return http_response
 
 
