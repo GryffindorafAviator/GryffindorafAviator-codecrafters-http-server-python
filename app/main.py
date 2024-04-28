@@ -21,7 +21,8 @@ def main():
         random_string = extract_random_string(request_data)
         http_response = prepare_response(random_string)
     elif path is not None and path.find("/user-agent") == 0:
-        res_string = lines[2]
+        _, user_agent = lines[2].split()
+        res_string = user_agent
         http_response = prepare_response(res_string)
     else:
         http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
