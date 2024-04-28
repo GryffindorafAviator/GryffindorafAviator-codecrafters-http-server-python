@@ -1,3 +1,4 @@
+import os.path
 import re
 import socket
 import threading
@@ -21,13 +22,21 @@ def handle_client(client_socket):
         method, path, http_version = lines[0].split()
         if path == '/':
             http_response = "HTTP/1.1 200 OK\r\n\r\n"
-        elif path is not None and path.find("/echo") == 0:
+        elif path is not None and path.startswith("/echo"):
             random_string = extract_random_string(request_data)
-            http_response = prepare_response(random_string)
-        elif path is not None and path.find("/user-agent") == 0:
+            http_response = prepare_response1(random_string)
+        elif path is not None and path.startswith("/user-agent"):
             _, user_agent = lines[2].split()
             res_string = user_agent
-            http_response = prepare_response(res_string)
+            http_response = prepare_response1(res_string)
+        elif path is not None and path.startswith("/files"):
+            file_path = path.lstrip('/files/')
+            if os.path.exists(file_path) and os.path.isfile(file_path):
+                with open(file_path, 'rb') as file:
+                    file_content = file.read()
+                http_response = prepare_response2(200, file_content, "application/octet-stream")
+            else:
+                http_response = prepare_response2(404, b'Not Found', "application/octet-stream")
         else:
             http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
         client_socket.sendall(http_response.encode())
@@ -45,7 +54,13 @@ def extract_random_string(request_data):
         return None
 
 
-def prepare_response(res_string):
+def prepare_response2(status_code, body, content_type):
+    status_line = f"HTTP/1.1 {status_code}\r\n"
+    headers = f"Content-Type: {content_type}\r\nContent-Length: {len(body)}\r\n\r\n"
+    return status_line.encode() + headers.encode() + body
+
+
+def prepare_response1(res_string):
     response_body = res_string
     content_type = "Content-Type: text/plain\r\n"
     content_length = f"Content-Length: {len(response_body)}\r\n"
