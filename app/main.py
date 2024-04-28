@@ -10,7 +10,7 @@ def main():
     while True:
         client_socket, client_address = server_socket.accept()  # wait for client
         print(f"Connection from {client_address}")
-        client_thread = threading.Thread(target=handle_client(), args=(client_socket,))
+        client_thread = threading.Thread(target=handle_client, args=(client_socket,))
         client_thread.start()
 
 
