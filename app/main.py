@@ -22,13 +22,16 @@ def handle_client(client_socket):
         method, path, http_version = lines[0].split()
         if path == '/':
             http_response = "HTTP/1.1 200 OK\r\n\r\n"
+            client_socket.sendall(http_response.encode())
         elif path is not None and path.startswith("/echo"):
             random_string = extract_random_string(request_data)
             http_response = prepare_response1(random_string)
+            client_socket.sendall(http_response.encode())
         elif path is not None and path.startswith("/user-agent"):
             _, user_agent = lines[2].split()
             res_string = user_agent
             http_response = prepare_response1(res_string)
+            client_socket.sendall(http_response.encode())
         elif path is not None and path.startswith("/files"):
             file_path = path.lstrip('/files/')
             if os.path.exists(file_path) and os.path.isfile(file_path):
@@ -37,9 +40,11 @@ def handle_client(client_socket):
                 http_response = prepare_response2(200, file_content, "application/octet-stream")
             else:
                 http_response = prepare_response2(404, b'Not Found', "application/octet-stream")
+            client_socket.sendall(http_response)
         else:
             http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
-        client_socket.sendall(http_response.encode())
+            client_socket.sendall(http_response.encode())
+        # client_socket.sendall(http_response.encode())
     except Exception as e:
         print(f"Error handling client: {e}")
     finally:
