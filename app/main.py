@@ -28,7 +28,7 @@ def extract_random_string(request_data):
 
 
 def prepare_response(random_string):
-    if random_string is not None:
+    if random_string:
         response_body = random_string
         content_type = "Content-Type: text/plain\r\n"
         content_length = f"Content-Length: {len(response_body)}\r\n"
