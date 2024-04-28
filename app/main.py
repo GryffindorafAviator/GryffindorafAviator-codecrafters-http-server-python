@@ -28,13 +28,10 @@ def extract_random_string(request_data):
 
 
 def prepare_response(random_string):
-    if random_string:
-        response_body = random_string
-        content_type = "Content-Type: text/plain\r\n"
-        content_length = f"Content-Length: {len(response_body)}\r\n"
-        http_response = f"HTTP/1.1 200 OK\r\n{content_type}{content_length}\r\n{response_body}"
-    else:
-        http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
+    response_body = random_string
+    content_type = "Content-Type: text/plain\r\n"
+    content_length = f"Content-Length: {len(response_body)}\r\n"
+    http_response = f"HTTP/1.1 200 OK\r\n{content_type}{content_length}\r\n{response_body}"
     return http_response
 
 
