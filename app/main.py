@@ -20,6 +20,9 @@ def main():
     elif path is not None and path.find("/echo") == 0:
         random_string = extract_random_string(request_data)
         http_response = prepare_response(random_string)
+    elif path is not None and path.find("/user-agent") == 0:
+        res_string = lines[2]
+        http_response = prepare_response(res_string)
     else:
         http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
 
@@ -35,21 +38,11 @@ def extract_random_string(request_data):
         return None
 
 
-def prepare_response(random_string):
-    if random_string:
-        # Generate the response body
-        response_body = random_string
-
-        # Set the Content-Type and Content-Length headers
-        content_type = "Content-Type: text/plain\r\n"
-        content_length = f"Content-Length: {len(response_body)}\r\n"
-
-        # Construct the complete HTTP response
-        http_response = f"HTTP/1.1 200 OK\r\n{content_type}{content_length}\r\n{response_body}"
-    else:
-        # If random string is not found, respond with 404 Not Found
-        http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
-
+def prepare_response(res_string):
+    response_body = res_string
+    content_type = "Content-Type: text/plain\r\n"
+    content_length = f"Content-Length: {len(response_body)}\r\n"
+    http_response = f"HTTP/1.1 200 OK\r\n{content_type}{content_length}\r\n{response_body}"
     return http_response
 
 
