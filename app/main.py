@@ -34,7 +34,7 @@ def handle_client(client_socket):
             client_socket.sendall(http_response.encode())
         elif path is not None and path.startswith("/files"):
             file_path = path.lstrip('/files/')
-            if os.path.exists(file_path) and os.path.isfile(file_path):
+            if os.path.exists(file_path):
                 with open(file_path, 'rb') as file:
                     file_content = file.read()
                 http_response = prepare_response2(200, file_content, "application/octet-stream")
