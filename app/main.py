@@ -1,6 +1,7 @@
 import os.path
 import re
 import socket
+import sys
 import threading
 
 
@@ -23,21 +24,25 @@ def handle_client(client_socket):
         if path == '/':
             http_response = "HTTP/1.1 200 OK\r\n\r\n"
             client_socket.sendall(http_response.encode())
-        elif path is not None and path.startswith("/echo"):
+        elif path.startswith("/echo"):
             random_string = extract_random_string(request_data)
             http_response = prepare_response1(random_string)
             client_socket.sendall(http_response.encode())
-        elif path is not None and path.startswith("/user-agent"):
+        elif path.startswith("/user-agent"):
             _, user_agent = lines[2].split()
             res_string = user_agent
             http_response = prepare_response1(res_string)
             client_socket.sendall(http_response.encode())
-        elif path is not None and path.startswith("/files"):
+        elif path.startswith("/files"):
             file_path = path.lstrip('/files/')
-            if os.path.exists(file_path):
-                with open(file_path, 'rb') as file:
-                    file_content = file.read()
-                http_response = prepare_response2(200, file_content, "application/octet-stream")
+            os.chdir(sys.argv[2])
+            contents = ""
+            files = os.listdir()
+            if file_path in files:
+                with open(file_path, 'r') as f:
+                    contents = f.read()
+            if contents:
+                http_response = prepare_response2(200, contents, "application/octet-stream")
             else:
                 http_response = prepare_response2(404, b'Not Found', "application/octet-stream")
             client_socket.sendall(http_response)
