@@ -23,16 +23,16 @@ def handle_client(client_socket):
         method, path, http_version = lines[0].split()
         if path == '/':
             http_response = "HTTP/1.1 200 OK\r\n\r\n"
-            client_socket.sendall(http_response.encode())
+            # client_socket.sendall(http_response.encode())
         elif path.startswith("/echo"):
             random_string = extract_random_string(request_data)
-            http_response = prepare_response1(random_string)
-            client_socket.sendall(http_response.encode())
+            http_response = prepare_response(random_string)
+            # client_socket.sendall(http_response.encode())
         elif path.startswith("/user-agent"):
             _, user_agent = lines[2].split()
             res_string = user_agent
-            http_response = prepare_response1(res_string)
-            client_socket.sendall(http_response.encode())
+            http_response = prepare_response(res_string)
+            # client_socket.sendall(http_response.encode())
         elif path.startswith("/files"):
             file_path = path.lstrip('/files/')
             os.chdir(sys.argv[2])
@@ -42,14 +42,14 @@ def handle_client(client_socket):
                 with open(file_path, 'r') as f:
                     contents = f.read()
             if contents:
-                http_response = prepare_response2(200, contents, "application/octet-stream")
+                http_response = f"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length:{len(contents)}\r\n\n{contents}\r\n\r\n"
             else:
-                http_response = prepare_response2(404, b'Not Found', "application/octet-stream")
-            client_socket.sendall(http_response)
+                http_response = "HTTP/1/1 404 NOT FOUND\r\n\r\n"
+            # client_socket.sendall(http_response)
         else:
             http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
-            client_socket.sendall(http_response.encode())
-        # client_socket.sendall(http_response.encode())
+            # client_socket.sendall(http_response.encode())
+        client_socket.sendall(http_response.encode())
     except Exception as e:
         print(f"Error handling client: {e}")
     finally:
@@ -64,13 +64,13 @@ def extract_random_string(request_data):
         return None
 
 
-def prepare_response2(status_code, body, content_type):
-    status_line = f"HTTP/1.1 {status_code}\r\n"
-    headers = f"Content-Type: {content_type}\r\nContent-Length: {len(body)}\r\n\r\n"
-    return status_line.encode() + headers.encode() + body
+# def prepare_response2(status_code, body, content_type):
+#     status_line = f"HTTP/1.1 {status_code}\r\n"
+#     headers = f"Content-Type: {content_type}\r\nContent-Length: {len(body)}\r\n\r\n"
+#     return status_line.encode() + headers.encode() + body
 
 
-def prepare_response1(res_string):
+def prepare_response(res_string):
     response_body = res_string
     content_type = "Content-Type: text/plain\r\n"
     content_length = f"Content-Length: {len(response_body)}\r\n"
