@@ -44,7 +44,7 @@ def handle_client(client_socket):
             if contents:
                 http_response = f"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length:{len(contents)}\r\n\n{contents}\r\n\r\n"
             else:
-                http_response = "HTTP/1/1 404 NOT FOUND\r\n\r\n"
+                http_response = "HTTP/1.1 404 NOT FOUND\r\n\r\n"
             # client_socket.sendall(http_response)
         else:
             http_response = "HTTP/1.1 404 Not Found\r\n\r\n"
